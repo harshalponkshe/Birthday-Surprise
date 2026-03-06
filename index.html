@@ -5,6 +5,7 @@
 <title>Birthday Quest</title>
 
 <style>
+
 body{
     margin:0;
     overflow:hidden;
@@ -14,112 +15,29 @@ body{
     cursor:none;
 }
 
-/* AUTOPLAY OVERLAY */
-#startOverlay{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.8);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    color:white;
-    font-size:32px;
-    text-align:center;
-    z-index:99999;
-    cursor:pointer;
-    flex-direction:column;
-    opacity:1;
-    transition:opacity 0.5s ease;
-}
-
-/* icon container aligned in a vertical column on left side */
-.icon-container{
-    position:fixed;
-    left:20px;
-    top:50%;
-    transform:translateY(-50%);
-    display:flex;
-    flex-direction: column; 
-    gap:30px;
-    z-index:10;
-}
-
-/* gift icons with circular frames and magical aura */
-.icon-wrapper{
-    position:relative;
-    width:130px;
-    height:130px;
-}
-
+/* gift icons with circular frames */
 .icon{
     position:absolute;
     width:130px;
-    height:130px;           
-    border-radius:50%;       
-    border:3px solid gold;   
-    box-shadow: 0 0 15px rgba(255,215,0,0.6); 
-    background: rgba(0,0,0,0.3); 
+    height:130px;
+    border-radius:50%;
+    border:3px solid gold;
+    box-shadow: 0 0 15px rgba(255,215,0,0.6);
     cursor:pointer;
     transition: transform 0.25s ease, filter 0.25s ease, box-shadow 0.25s ease;
-    overflow:hidden; 
-    z-index:2;
+    overflow:hidden;
 }
 
 .icon:hover{
     transform:scale(1.35);
     filter:drop-shadow(0 0 25px gold);
     box-shadow: 0 0 25px rgba(255,215,0,0.9);
-    background: rgba(0,0,0,0.5);
 }
 
-/* magical aura animation behind icons */
-.aura{
-    position:absolute;
-    width:160px;
-    height:160px;
-    top:-15px;
-    left:-15px;
-    border-radius:50%;
-    background: radial-gradient(circle, rgba(255,255,0,0.4), rgba(255,215,0,0));
-    filter:blur(12px);
-    animation: pulse 2s infinite alternate, auraFlicker 1.5s infinite alternate;
-    z-index:1;
-}
-
-@keyframes pulse{
-    0%{transform: scale(1);}
-    50%{transform: scale(1.2);}
-    100%{transform: scale(1);}
-}
-
-@keyframes auraFlicker{
-    0%{opacity:0.5;}
-    50%{opacity:1;}
-    100%{opacity:0.5;}
-}
-
-/* icon float animation */
-@keyframes floatIcon{
-    0%{transform: translateY(0px) rotate(0deg);}
-    25%{transform: translateY(-5px) rotate(-2deg);}
-    50%{transform: translateY(0px) rotate(1deg);}
-    75%{transform: translateY(5px) rotate(-1deg);}
-    100%{transform: translateY(0px) rotate(0deg);}
-}
-
-/* different float durations for each icon */
-.icon-wrapper:nth-child(1) .icon{
-    animation: floatIcon 3s ease-in-out infinite;
-}
-.icon-wrapper:nth-child(2) .icon{
-    animation: floatIcon 3.2s ease-in-out infinite;
-}
-.icon-wrapper:nth-child(3) .icon{
-    animation: floatIcon 2.8s ease-in-out infinite;
-}
+/* icon positions */
+#gift1{ bottom:120px; left:25%; }
+#gift2{ top:40%; left:48%; }
+#gift3{ bottom:120px; right:25%; }
 
 /* paimon cursor */
 #paimonCursor{
@@ -186,32 +104,18 @@ button{
 
 <body>
 
-<!-- AUTOPLAY START OVERLAY -->
-<div id="startOverlay">Click anywhere to start 🎵</div>
-
 <!-- MAIN PAGE BACKGROUND MUSIC -->
-<audio id="bgMusic" loop autoplay muted>
+<audio id="bgMusic" loop>
 <source src="main-music.mp3" type="audio/mpeg">
 </audio>
 
 <!-- PAIMON CURSOR -->
 <img id="paimonCursor" src="paimon.png">
 
-<!-- ICONS WITH AURA -->
-<div class="icon-container">
-    <div class="icon-wrapper">
-        <div class="aura"></div>
-        <img src="gift1.webp" class="icon" onclick="openScene(1)">
-    </div>
-    <div class="icon-wrapper">
-        <div class="aura"></div>
-        <img src="gift2.webp" class="icon" onclick="openScene(2)">
-    </div>
-    <div class="icon-wrapper">
-        <div class="aura"></div>
-        <img src="gift3.webp" class="icon" onclick="openScene(3)">
-    </div>
-</div>
+<!-- MAIN PAGE GIFTS -->
+<img src="gift1.webp" class="icon" id="gift1" onclick="openScene(1)">
+<img src="gift2.webp" class="icon" id="gift2" onclick="openScene(2)">
+<img src="gift3.webp" class="icon" id="gift3" onclick="openScene(3)">
 
 <!-- SCENE 1 -->
 <div class="scene" id="scene1">
@@ -241,29 +145,16 @@ button{
 <script>
 
 const bgMusic = document.getElementById("bgMusic");
-const startOverlay = document.getElementById("startOverlay");
 
-function startMusic(){
-    bgMusic.volume = 0; 
-    bgMusic.play().then(()=>{
-        let vol = 0;
-        const fade = setInterval(() => {
-            if(vol < 0.5){
-                vol += 0.02;
-                bgMusic.volume = vol;
-            } else {
-                clearInterval(fade);
-            }
-        }, 100);
-    }).catch(()=>{});
-    startOverlay.style.opacity = 0;
-    setTimeout(()=>startOverlay.style.display="none",500);
-}
-
-startOverlay.addEventListener("click", startMusic);
-
+/* START MAIN PAGE MUSIC ON LOAD OR FIRST CLICK */
 window.addEventListener("load", () => {
-    bgMusic.play().then(()=>startMusic()).catch(()=>{});
+    bgMusic.volume = 0.5;
+    bgMusic.play().catch(() => {
+        // autoplay blocked, play on first click
+        document.body.addEventListener("click", () => {
+            bgMusic.play();
+        }, { once: true });
+    });
 });
 
 /* PAIMON FOLLOW CURSOR */
@@ -275,9 +166,15 @@ document.addEventListener("mousemove", e => {
 
 /* OPEN SCENES */
 function openScene(n){
-    bgMusic.pause();
     document.querySelectorAll(".scene").forEach(s => s.style.display = "none");
     document.getElementById("scene"+n).style.display = "flex";
+
+    // if first icon clicked, start main music if not already playing
+    if(n === 1){
+        if(bgMusic.paused){
+            bgMusic.play();
+        }
+    }
 
     if(n===2){
         let m = document.getElementById("music");
@@ -297,12 +194,16 @@ function openScene(n){
 /* RETURN TO MAIN PAGE */
 function closeScenes(){
     document.querySelectorAll(".scene").forEach(s => s.style.display = "none");
-    bgMusic.play();
+    // main music continues playing on main page
+    if(bgMusic.paused){
+        bgMusic.play();
+    }
 }
 
 </script>
 
 </body>
 </html>
+
 
 
