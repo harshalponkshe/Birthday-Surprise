@@ -190,11 +190,31 @@ function openScene(n){
     }
 
     if(n===3){
-        let v = document.getElementById("video");
-        v.currentTime = 0;
-        v.play();
-        v.onended = closeScenes;
-    }
+       if(n===3){
+
+    let flash = document.getElementById("lightning");
+    let reveal = document.getElementById("electroReveal");
+
+    // lightning flash effect
+    flash.style.opacity = "1";
+
+    setTimeout(() => {
+        flash.style.opacity = "0";
+    }, 150);
+
+    // second flash (cool effect)
+    setTimeout(() => {
+        flash.style.opacity = "1";
+    }, 300);
+
+    setTimeout(() => {
+        flash.style.opacity = "0";
+    }, 450);
+
+    // reveal after lightning
+    setTimeout(() => {
+        reveal.style.display = "flex";
+    }, 700);
 }
 
 /* RETURN TO MAIN PAGE */
